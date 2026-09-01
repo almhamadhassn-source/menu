@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@500;600&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+
+/* Palette sampled from the real Peshwazi mark (public/peshwazi-logo.png): an oxblood ribbon
+   calligraphy with a warm sand diamond motif — not the generic "burgundy fine-dining" gold this
+   file used to reach for. --sand doubles as the signature shape (see .diamond-row / .tab-marker)
+   since the logo's own repeating diamonds are the one motif that's unmistakably this brand's. */
+:root {
+  --paper: #f7f1e4;
+  --ink: #f3e6dc;
+  --muted: #d8bfb6;
+  --oxblood: #7c2836;
+  --oxblood-deep: #200a0d;
+  --sand: #c9a374;
+  --sand-bright: #e6c793;
+  --accent: #d98c4a;
+  /* A brushed-metal sheen (dark → bright highlight → dark) instead of flat sand, for the handful
+     of elements meant to read as gilded rather than merely tan: the CTA, price chips, and active
+     states. Kept off everything else so it stays a genuine accent, not wallpaper. */
+  --gold-foil: linear-gradient(120deg, #8a5f2e 0%, #d9ac68 18%, #fbe6b4 38%, #e6c793 52%, #a9793f 72%, #f3d497 90%, #8a5f2e 100%);
+  --glass-bg: rgba(247, 241, 228, 0.78);
+  --glass-border: rgba(124, 40, 54, 0.16);
+  --glass-blur: 20px;
+  --ink-on-glass: #2b1315;
+  /* Was too light once the glass cards got more translucent (see .menu-card/.detail-sheet
+     background) — the diamond field bleeding through left descriptions hard to read. Same reason
+     --sand-on-glass got darkened: a gold hue needs to go this dark before it holds up as small
+     text on a light, patterned card — lighter reads as gold on a flat swatch but washes out here. */
+  --muted-on-glass: #5c3730;
+  --sand-on-glass: #7a3d1c;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Fraunces has no Arabic glyphs, so Arabic/Kurdish headlines need their own display face
+     rather than silently falling back to the browser's generic serif. */
+  --font-display: 'Fraunces', serif;
+  --display-style: italic;
+  --font-label: 'DM Mono', monospace;
+}
+:lang(ar), :lang(ckb) {
+  --font-display: 'Aref Ruqaa', serif;
+  --display-style: normal;
+  --font-label: 'Noto Kufi Arabic', sans-serif;
+}
+* { box-sizing: border-box; }
+html { background: var(--oxblood-deep); scroll-behavior: auto; }
+/* Noto Kufi Arabic is a geometric, poster-like face — good for the short all-caps micro-labels
+   (--font-label above), wrong for reading a dish description. Body copy falls back to Noto Naskh
+   Arabic instead, a face actually drawn for continuous reading. */
+body { margin: 0; color: var(--ink); background: var(--oxblood-deep); font-family: Manrope, 'Noto Naskh Arabic', serif; }
+button, input { font: inherit; } button { border: 0; cursor: pointer; color: inherit; background: transparent; } button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* A repeating-diamond field stands in for the welcome video until a real one is uploaded (see
+   src/components/admin/SettingsPanel.tsx's "فيديو الترحيب" picker) — it's drawn from the logo's
+   own lozenge motif, so the fallback reads as this brand rather than as stock restaurant footage. */
+.cinema { position: relative; min-height: 100vh; }
+.cinema-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: var(--oxblood-deep); }
+.cinema-bg video { position: absolute; inset: -6%; width: 112%; height: 112%; object-fit: cover; filter: saturate(0.72) contrast(1.08) brightness(0.68); animation: kenburns 34s ease-in-out infinite alternate; }
+.diamond-field {
+  position: absolute; inset: -20%; width: 140%; height: 140%;
+  background-color: var(--oxblood-deep);
+  background-image:
+    linear-gradient(45deg, var(--oxblood) 24%, transparent 24%, transparent 76%, var(--oxblood) 76%),
+    linear-gradient(45deg, var(--oxblood) 24%, transparent 24%, transparent 76%, var(--oxblood) 76%);
+  background-size: 84px 84px;
+  background-position: 0 0, 42px 42px;
+  opacity: 0.4;
+  animation: driftfield 60s linear infinite;
+}
+@keyframes driftfield { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-84px, -84px, 0); } }
+@keyframes foilshine { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+.cinema-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(32, 10, 13, 0.22), rgba(32, 10, 13, 0.4) 55%, rgba(32, 10, 13, 0.7)); }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.14); } }
+
+/* The logo's own repeating diamonds, reused as this site's one recurring signature mark — a
+   divider, a tab indicator, a tag bullet — instead of the generic gold hairline rule this file
+   used everywhere before. */
+.diamond-row { display: flex; align-items: center; justify-content: center; gap: 11px; }
+.diamond-row i { width: 6px; height: 6px; flex: none; background: var(--gold-foil); background-size: 220% 220%; box-shadow: 0 0 6px rgba(230, 199, 147, 0.5); transform: rotate(45deg); opacity: 0.85; }
+.diamond-row i:nth-child(3n) { opacity: 0.55; }
+
+/* Glass surfaces float above the field/video — the shared language across welcome, nav and menu
+   cards. Panels are a light warm paper tone, so --ink/--muted/--sand-bright are re-scoped here to
+   their dark-on-light counterparts; everything outside a panel keeps reading light-on-field. */
+.glass-panel {
+  position: relative;
+  z-index: 1;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  overflow: hidden;
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  box-shadow: 0 34px 90px rgba(8, 2, 5, 0.48), 0 2px 0 rgba(255, 255, 255, 0.12) inset;
+  --ink: var(--ink-on-glass);
+  --muted: var(--muted-on-glass);
+  --sand-bright: var(--sand-on-glass);
+  color: var(--ink);
+}
+
+.welcome { min-height: 100svh; position: relative; z-index: 1; color: var(--ink); display: grid; place-items: center; padding: 6vh 20px; }
+/* A gilded double-line frame, echoing the rectangle the logo's own calligraphy sits inside —
+   built from stacked inset shadows rather than an extra element, so it doesn't disturb the
+   diamond-bloom entrance/exit transform on this same box. */
+.welcome-content { width: min(90vw, 620px); text-align: center; padding: clamp(36px, 6vw, 64px) clamp(24px, 5vw, 56px); box-shadow: 0 34px 90px rgba(8, 2, 5, 0.48), inset 0 0 0 1.5px rgba(230, 199, 147, 0.6), inset 0 0 0 8px rgba(230, 199, 147, 0.14); }
+.welcome-brand, .brand-mark { display: flex; flex-direction: column; align-items: center; }
+.brand-script { font-family: var(--font-display); font-style: var(--display-style); font-weight: 500; font-size: clamp(40px, 8vw, 72px); line-height: 0.9; letter-spacing: -2px; }
+:lang(ar) .brand-script, :lang(ckb) .brand-script { letter-spacing: 0; font-weight: 700; }
+.brand-logo-mark { width: min(56vw, 260px); height: auto; object-fit: contain; }
+.brand-logo { width: 140px; height: 44px; object-fit: contain; display: block; }
+.brand-caption { font: 500 9px/1 'DM Mono', monospace; letter-spacing: 3px; margin-top: 14px; opacity: 0.75; }
+.welcome-line, .eyebrow, .card-tag { font-family: var(--font-label); font-weight: 500; font-size: 10px; line-height: 1.5; letter-spacing: 1.5px; text-transform: uppercase; }
+.welcome-line { margin: 32px 0 14px; color: var(--muted); }
+.welcome h1 { font-family: var(--font-display); font-style: var(--display-style); font-weight: 500; font-size: clamp(32px, 6.5vw, 58px); line-height: 1.25; margin: 0; }
+:lang(ar) .welcome h1, :lang(ckb) .welcome h1 { line-height: 1.5; }
+.welcome .diamond-row { margin-top: 28px; }
+/* Slanted chips, not plain boxes — each button is skewed as a shape, and its label is
+   counter-skewed back to upright so only the chip itself reads as angled. */
+.language-row { display: flex; justify-content: center; gap: 10px; margin-top: 30px; direction: ltr; }
+.language-row button { background: transparent; color: var(--ink); border: 1px solid var(--glass-border); padding: 10px 22px; font-size: 12px; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.language-row button:hover { border-color: var(--sand); }
+.language-row button span { display: inline-block; transform: skewX(-14deg); }
+.language-row button.selected { background: var(--gold-foil); background-size: 220% 220%; color: var(--oxblood-deep); border-color: var(--sand); }
+.enter-button { margin-top: 26px; padding: 18px 44px; background: var(--gold-foil); background-size: 220% 100%; animation: foilshine 5s ease-in-out infinite alternate; color: var(--oxblood-deep); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; display: inline-flex; align-items: center; box-shadow: 0 18px 46px rgba(138, 95, 46, 0.4), 0 2px 0 rgba(255, 255, 255, 0.35) inset; border-radius: 2px; transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease); }
+.enter-button:hover { transform: translateY(-3px); box-shadow: 0 24px 56px rgba(138, 95, 46, 0.5), 0 2px 0 rgba(255, 255, 255, 0.4) inset; }
+.welcome-meta { position: absolute; z-index: 1; bottom: 30px; inset-inline: 34px; display: flex; justify-content: space-between; font-family: var(--font-label); font-weight: 600; font-size: 13px; letter-spacing: 1.5px; opacity: 0.8; }
+
+/* Menu shell — transparent, the persistent field/video shows through everywhere */
+.menu-shell { position: relative; z-index: 1; min-height: 100vh; padding: 20px 4vw 0; }
+.menu-header { margin: 0 0 16px; padding: 14px 24px; min-height: 74px; display: flex; align-items: center; justify-content: space-between; }
+.menu-header .brand-mark { flex-direction: row; align-items: center; gap: 14px; } .menu-header .brand-script { font-size: 22px; letter-spacing: -1px; } .brand-word { font: 500 8px/1 'DM Mono', monospace; letter-spacing: 2.5px; opacity: 0.7; }
+.header-actions { display: flex; align-items: center; gap: 9px; font-family: var(--font-label); font-size: 10px; color: var(--muted); letter-spacing: 0.5px; } .location-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
+.menu-intro { padding: 28px clamp(20px, 4vw, 40px); max-width: 780px; margin: 0 0 20px; } .eyebrow { color: var(--sand-bright); margin: 0 0 18px; } .menu-intro h1 { font-family: var(--font-display); font-style: var(--display-style); font-weight: 500; font-size: clamp(34px, 6.5vw, 72px); line-height: 1.15; letter-spacing: -1.5px; margin: 0 0 20px; color: var(--ink); } :lang(ar) .menu-intro h1, :lang(ckb) .menu-intro h1 { line-height: 1.5; letter-spacing: 0; } .intro-copy { color: var(--muted); max-width: 380px; font-size: 15px; line-height: 1.9; margin: 0; font-family: Manrope, 'Noto Naskh Arabic', serif; }
+.sticky-nav { position: sticky; top: 14px; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 30px; padding: 12px 16px; }
+/* Category "chips" borrow their chunky, rounded, tactile shape from a reference the client liked
+   — not its neumorphic gray palette, just the silhouette: a soft rounded block with the name and
+   a count stacked inside, not a thin text tab. */
+.category-nav { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+.category-nav::-webkit-scrollbar { display: none; }
+.category-nav button { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; background: rgba(255, 255, 255, 0.32); border: 1px solid var(--glass-border); border-radius: 18px; white-space: nowrap; padding: 11px 20px; min-width: 82px; color: var(--muted); transition: background 0.25s, color 0.25s, transform 0.2s, border-color 0.25s; }
+.category-nav button:hover { transform: translateY(-2px); border-color: var(--sand); }
+.category-nav button.active { background: var(--gold-foil); background-size: 220% 220%; color: var(--oxblood-deep); border-color: var(--sand); box-shadow: 0 10px 24px rgba(138, 95, 46, 0.35); }
+.category-name { font-size: 12px; font-weight: 600; }
+.category-count { font-family: var(--font-label); font-size: 9px; opacity: 0.65; }
+.search-wrap { display: flex; gap: 8px; align-items: center; color: var(--muted); border-inline-start: 1px solid var(--glass-border); padding-inline-start: 16px; } .search-wrap input { border: 0; outline: 0; background: transparent; width: 130px; font-size: 11px; color: var(--ink); } .search-wrap input::placeholder { color: var(--muted); }
+/* Item cards borrow the same reference's card silhouette: big soft corners, the photo inset with
+   a visible margin rather than flush to the card edge, and the price as its own rounded chip. */
+.menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; padding: 4px 0 60px; } .menu-grid > div { min-width: 0; } .menu-card { display: block; width: 100%; text-align: start; padding: 14px; transition: box-shadow 0.3s var(--ease), transform 0.3s var(--ease); } .image-frame { aspect-ratio: 1 / 1.1; overflow: hidden; background: rgba(0, 0, 0, 0.25); border-radius: 18px; } .image-frame img, .detail-sheet > img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.7s var(--ease); } .menu-card:hover .image-frame img { transform: scale(1.045); } .menu-card:hover { box-shadow: 0 36px 90px rgba(8, 2, 5, 0.5); } .card-copy { padding: 16px 6px 4px; } .card-tag { color: var(--sand-on-glass); font-size: 8px; } .card-title-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 9px; } .card-title-row h2 { margin: 0; font: 700 25px/1.2 'Noto Naskh Arabic', Manrope, serif; color: var(--ink); } .card-title-row strong { white-space: nowrap; font-family: var(--font-label); font-weight: 600; font-size: 11px; color: var(--oxblood-deep); background: var(--gold-foil); background-size: 220% 220%; padding: 6px 13px; border-radius: 999px; box-shadow: 0 6px 16px rgba(138, 95, 46, 0.3); } .card-copy p { color: var(--muted); font-size: 13px; line-height: 1.8; margin: 10px 0 0; font-family: Manrope, 'Noto Naskh Arabic', serif; } .empty-state { padding: 40px; text-align: center; color: var(--muted); margin: 0 0 40px; } .menu-footer { padding: 20px 24px; margin: 0 0 40px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-family: var(--font-label); font-size: 9px; letter-spacing: 0.5px; }
+
+/* "Glass card" treatment for the two surfaces the brief called out specifically — noticeably more
+   translucent than the utilitarian nav/header glass-panels (which stay opaque for legibility), so
+   the oxblood diamond field actually reads through the blur, plus a glossy top rim and a corner
+   seal in the logo's own diamond shape. */
+.menu-card, .detail-sheet, .welcome-content { background: rgba(247, 241, 228, 0.42); backdrop-filter: blur(30px) saturate(1.8) brightness(1.4); -webkit-backdrop-filter: blur(30px) saturate(1.8) brightness(1.4); border-color: rgba(230, 199, 147, 0.45); border-radius: 26px; }
+.menu-card::before, .detail-sheet::before, .welcome-content::before { content: ''; position: absolute; z-index: 2; inset: 0 0 auto 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent); }
+.menu-card::after { content: ''; position: absolute; z-index: 2; top: 16px; inset-inline-end: 16px; width: 10px; height: 10px; background: var(--gold-foil); background-size: 220% 220%; box-shadow: 0 0 10px rgba(230, 199, 147, 0.7); transform: rotate(45deg); }
+/* Docked to the bottom edge, not centered — see the slide-up entrance on .detail-sheet in
+   MenuExperience.tsx. Rounded only on top, flat where it meets the bottom of the viewport, like a
+   native app's bottom sheet. */
+.detail-backdrop { position: fixed; z-index: 20; inset: 0; background: rgba(10, 3, 6, 0.72); display: flex; align-items: flex-end; justify-content: center; padding: 0 5vw; } .detail-sheet { width: min(920px, 100%); max-height: 88vh; display: grid; grid-template-columns: 1.05fr 0.95fr; border-radius: 28px 28px 0 0; } .detail-sheet > img { height: 100%; min-height: 480px; } .detail-content { padding: clamp(28px, 5vw, 60px); display: flex; flex-direction: column; justify-content: center; color: var(--ink); } .detail-content h2 { font-family: var(--font-display); font-style: var(--display-style); font-weight: 500; font-size: clamp(38px, 5.5vw, 60px); line-height: 1.2; margin: 18px 0; } :lang(ar) .detail-content h2, :lang(ckb) .detail-content h2 { line-height: 1.5; } .detail-content p { color: var(--muted); line-height: 1.9; font-size: 17px; max-width: 320px; font-family: Manrope, 'Noto Naskh Arabic', serif; } .detail-content strong { font-family: var(--font-label); font-weight: 500; font-size: 17px; margin-top: 26px; color: var(--sand-on-glass); } .close-detail { background: transparent; align-self: flex-start; margin-top: 40px; padding: 0; font-size: 12px; color: var(--ink); border-bottom: 1px solid var(--ink); }
+
+/* Root landing page (shown only if no restaurant is configured yet) */
+.branch-picker { min-height: 100vh; display: grid; place-items: center; gap: 20px; background: var(--oxblood-deep); color: var(--ink); text-align: center; padding: 40px 20px; }
+.branch-picker .brand-logo { width: 160px; height: auto; margin-bottom: 8px; }
+.branch-picker h1 { font-family: 'Aref Ruqaa', serif; font-size: 28px; margin: 0; }
+
+@keyframes reveal { from { opacity: 0.25; filter: saturate(0.3) blur(4px); } to { opacity: 1; filter: saturate(0.68) contrast(1.05) blur(0); } }
+
+@media (max-width: 800px) {
+  .menu-shell { padding: 14px 20px 0; }
+  .menu-header { min-height: 64px; padding: 10px 18px; }
+  .header-actions { display: none; }
+  .menu-intro { padding: 22px; }
+  .sticky-nav { margin: 0 0 22px; padding: 4px 16px; }
+  .category-nav button { padding-block: 14px; }
+  .search-wrap { display: none; }
+  .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .card-title-row { display: block; } .card-title-row strong { display: block; margin-top: 7px; } .card-title-row h2 { font-size: 19px; }
+  .card-copy p { font-size: 12px; }
+  .menu-footer { gap: 14px; flex-wrap: wrap; }
+  .detail-backdrop { padding: 0; }
+  .detail-sheet { grid-template-columns: 1fr; max-height: 92vh; overflow-y: auto; border-radius: 22px 22px 0 0; }
+  .detail-sheet > img { min-height: 260px; max-height: 44vh; }
+  .detail-content { padding: 24px; }
+  .detail-content h2 { font-size: 38px; margin: 12px 0; }
+  .welcome-meta { inset-inline: 18px; bottom: 20px; }
+  .welcome-content { padding: 32px 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
