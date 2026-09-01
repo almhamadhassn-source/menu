@@ -112,12 +112,9 @@ export function MenuExperience({ restaurant, categories, items }: { restaurant: 
         {/* The welcome video is decorative for that one first screen only — left mounted behind
             the menu too, it would keep decoding non-stop while the guest scrolls a card grid full
             of its own animations, which is exactly the kind of thing that makes scrolling stutter.
-            Unmounting it (not just hiding it) when the guest starts stops that decode entirely. */}
-        {restaurant.videoUrl && !started ? (
-          <video autoPlay={!reduced} muted loop playsInline src={restaurant.videoUrl} />
-        ) : (
-          <div className="diamond-field" />
-        )}
+            Unmounting it (not just hiding it) when the guest starts stops that decode entirely.
+            Otherwise .cinema-bg's own flat background color shows through — no pattern needed. */}
+        {restaurant.videoUrl && !started && <video autoPlay={!reduced} muted loop playsInline src={restaurant.videoUrl} />}
         <div className="cinema-scrim" />
       </div>
 
