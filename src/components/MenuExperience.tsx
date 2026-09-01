@@ -33,7 +33,7 @@ const formatPrice = (price: number, currency: string, language: Language) =>
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease } },
 }
 
 type NavCategory = { id: string; name: string; count: number }
@@ -148,15 +148,15 @@ export function MenuExperience({ restaurant, categories, items }: { restaurant: 
               className="detail-sheet glass-panel"
               onClick={(event) => event.stopPropagation()}
               initial={{ y: '100%' }}
-              animate={{ y: 0, transition: { duration: 0.55, ease: sheetEase } }}
-              exit={{ y: '100%', transition: { duration: 0.4, ease: sheetEase } }}
+              animate={{ y: 0, transition: { duration: 0.3, ease: sheetEase } }}
+              exit={{ y: '100%', transition: { duration: 0.25, ease: sheetEase } }}
             >
               <Image src={selected.image} alt={selected.name[language]} width={800} height={800} sizes="(max-width: 800px) 100vw, 480px" />
               <motion.div
                 className="detail-content"
                 initial="hidden"
                 animate="show"
-                variants={{ show: { transition: { staggerChildren: 0.07, delayChildren: 0.18 } } }}
+                variants={{ show: { transition: { staggerChildren: 0.03, delayChildren: 0.05 } } }}
               >
                 {selected.tag && (
                   <motion.span className="card-tag" variants={fadeUp}>
@@ -194,26 +194,27 @@ function Welcome({
   const text = copy[language]
   const welcomeLine = text.welcome.replace('%NAME%', restaurant.name[language])
   return (
-    <motion.main className="welcome" initial="hidden" animate="show" exit={{ opacity: 0, transition: { duration: 0.9, delay: 0.15 } }}>
+    <motion.main className="welcome" initial="hidden" animate="show" exit={{ opacity: 0, transition: { duration: 0.25 } }}>
       {/* The card that opens a dish (see DiamondRow / .detail-sheet in MenuStage) and the card
           that opens the whole menu share one signature move: they arrive and leave as this
           brand's diamond, not a generic fade — materializing here, and imploding into a bloom of
-          sand-colored light when the guest is ready to eat. */}
+          sand-colored light when the guest is ready to eat. Timings kept short on purpose: this
+          choreography used to add ~1.5s of dead time before the menu was even visible. */}
       <motion.div
         className="welcome-content glass-panel"
         initial={{ opacity: 0, scale: 0.86, y: 26, filter: 'blur(20px)' }}
-        animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { duration: 1.1, ease } }}
+        animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.35, ease } }}
         exit={{
           scale: [1, 1.06, 0.12],
           rotate: [0, 0, 45],
           opacity: [1, 1, 0],
           boxShadow: ['0 24px 60px rgba(8, 2, 5, 0.35)', '0 0 140px rgba(230, 199, 147, 0.6)', '0 0 0px rgba(230, 199, 147, 0)'],
-          transition: { duration: 0.95, ease, times: [0, 0.4, 1] },
+          transition: { duration: 0.35, ease, times: [0, 0.4, 1] },
         }}
       >
         <motion.div
           className="welcome-brand"
-          variants={{ hidden: { opacity: 0, y: 18, filter: 'blur(10px)' }, show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: reduced ? 0 : 1.2, ease } } }}
+          variants={{ hidden: { opacity: 0, y: 18, filter: 'blur(10px)' }, show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: reduced ? 0 : 0.35, ease } } }}
         >
           {restaurant.logoUrl ? (
             <img className="brand-logo-mark" src={restaurant.logoUrl} alt={restaurant.name[language]} />
@@ -224,11 +225,11 @@ function Welcome({
             </>
           )}
         </motion.div>
-        <motion.p className="welcome-line" variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.4, duration: 0.6 } } }}>
+        <motion.p className="welcome-line" variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.05, duration: 0.25 } } }}>
           {welcomeLine}
         </motion.p>
-        <motion.h1 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { delay: 0.55, duration: 0.6, ease } } }}>{text.subtitle}</motion.h1>
-        <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.68, duration: 0.5 } } }}>
+        <motion.h1 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { delay: 0.1, duration: 0.25, ease } } }}>{text.subtitle}</motion.h1>
+        <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.15, duration: 0.2 } } }}>
           <DiamondRow />
         </motion.div>
         <div className="language-row">
@@ -238,7 +239,7 @@ function Welcome({
               onClick={() => setLanguage(option)}
               className={language === option ? 'selected' : ''}
               style={{ skewX: 14 }}
-              variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { delay: 0.75 + index * 0.08, duration: 0.45, ease } } }}
+              variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { delay: 0.18 + index * 0.03, duration: 0.2, ease } } }}
             >
               <span>{option === 'ar' ? 'العربية' : option === 'ckb' ? 'کوردی' : 'English'}</span>
             </motion.button>
@@ -248,7 +249,7 @@ function Welcome({
           className="enter-button"
           onClick={onStart}
           whileTap={{ scale: 0.98 }}
-          variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { delay: 1.08, duration: 0.5, ease } } }}
+          variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { delay: 0.24, duration: 0.2, ease } } }}
         >
           {text.explore}
         </motion.button>
@@ -288,9 +289,9 @@ function MenuStage({
     <motion.main
       className="menu-shell"
       initial={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.7, ease } }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.25, ease } }}
     >
-      <motion.header layout className="menu-header glass-panel" initial={{ y: -24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6, delay: 0.15, ease }}>
+      <motion.header layout className="menu-header glass-panel" initial={{ y: -24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.25, delay: 0.05, ease }}>
         <div className="brand-mark">
           <span className="brand-word">RESTAURANT</span>
           {restaurant.logoUrl ? <img className="brand-logo" src={restaurant.logoUrl} alt={restaurant.name[language]} /> : <span className="brand-script">{restaurant.name[language]}</span>}
@@ -332,7 +333,7 @@ function MenuStage({
           initial={{ opacity: 0, filter: 'blur(6px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
           exit={{ opacity: 0, filter: 'blur(6px)' }}
-          transition={{ duration: 0.4, ease }}
+          transition={{ duration: 0.2, ease }}
         >
           {visibleItems.map((item, index) => (
             <MenuCard key={item.id} item={item} language={language} index={index} onSelect={() => setSelected(item)} />
