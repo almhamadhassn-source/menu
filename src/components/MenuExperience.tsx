@@ -1,16 +1,12 @@
 'use client'
 
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
-import Lenis from 'lenis'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { copy, type CopyStrings } from '@/lib/menu-data'
 import { getRestaurantMenu } from '@/lib/queries'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
 import type { Language, MenuCategory, MenuItem, Restaurant } from '@/lib/types'
-
-const ease = [0.32, 0.72, 0, 1] as const
-const sheetEase = [0.16, 1, 0.3, 1] as const
 
 // A small decorative row of diamonds — the one shape this brand actually owns (see the lozenge
 // motif in public/peshwazi-logo.png) — reused as a divider instead of a generic hairline rule.
@@ -33,7 +29,7 @@ const formatPrice = (price: number, currency: string, language: Language) =>
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease } },
+  show: { opacity: 1, y: 0, transition: { duration: 0 } },
 }
 
 type NavCategory = { id: string; name: string; count: number }
@@ -48,20 +44,6 @@ export function MenuExperience({ restaurant, categories, items }: { restaurant: 
   const [liveItems, setLiveItems] = useState(items)
   const reduced = useReducedMotion()
   const text = copy[language]
-
-  useEffect(() => {
-    const lenis = new Lenis({ duration: 1.15, smoothWheel: true })
-    let frame = 0
-    const raf = (time: number) => {
-      lenis.raf(time)
-      frame = requestAnimationFrame(raf)
-    }
-    frame = requestAnimationFrame(raf)
-    return () => {
-      cancelAnimationFrame(frame)
-      lenis.destroy()
-    }
-  }, [])
 
   useEffect(() => {
     document.documentElement.lang = language
@@ -120,7 +102,7 @@ export function MenuExperience({ restaurant, categories, items }: { restaurant: 
 
       <AnimatePresence mode="wait">
         {!started ? (
-          <Welcome key="welcome" restaurant={restaurant} language={language} setLanguage={setLanguage} onStart={() => setStarted(true)} reduced={reduced} />
+          <Welcome key="welcome" restaurant={restaurant} language={language} setLanguage={setLanguage} onStart={() => setStarted(true)} />
         ) : (
           <MenuStage
             key="menu"
@@ -144,21 +126,22 @@ export function MenuExperience({ restaurant, categories, items }: { restaurant: 
           .menu-shell's scrollable height instead of the actual viewport. */}
       <AnimatePresence>
         {selected && (
-          <motion.div className="detail-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelected(null)}>
+          <motion.div
+            className="detail-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { duration: 0 } }}
+            exit={{ opacity: 0, transition: { duration: 0 } }}
+            onClick={() => setSelected(null)}
+          >
             <motion.div
               className="detail-sheet glass-panel"
               onClick={(event) => event.stopPropagation()}
               initial={{ y: '100%' }}
-              animate={{ y: 0, transition: { duration: 0.3, ease: sheetEase } }}
-              exit={{ y: '100%', transition: { duration: 0.25, ease: sheetEase } }}
+              animate={{ y: 0, transition: { duration: 0 } }}
+              exit={{ y: '100%', transition: { duration: 0 } }}
             >
               <Image src={selected.image} alt={selected.name[language]} width={800} height={800} sizes="(max-width: 800px) 100vw, 480px" />
-              <motion.div
-                className="detail-content"
-                initial="hidden"
-                animate="show"
-                variants={{ show: { transition: { staggerChildren: 0.03, delayChildren: 0.05 } } }}
-              >
+              <motion.div className="detail-content" initial="hidden" animate="show">
                 {selected.tag && (
                   <motion.span className="card-tag" variants={fadeUp}>
                     {selected.tag}
@@ -184,38 +167,28 @@ function Welcome({
   language,
   setLanguage,
   onStart,
-  reduced,
 }: {
   restaurant: Restaurant
   language: Language
   setLanguage: (language: Language) => void
   onStart: () => void
-  reduced: boolean | null
 }) {
   const text = copy[language]
   const welcomeLine = text.welcome.replace('%NAME%', restaurant.name[language])
   return (
-    <motion.main className="welcome" initial="hidden" animate="show" exit={{ opacity: 0, transition: { duration: 0.25 } }}>
-      {/* The card that opens a dish (see DiamondRow / .detail-sheet in MenuStage) and the card
-          that opens the whole menu share one signature move: they arrive and leave as this
-          brand's diamond, not a generic fade — materializing here, and imploding into a bloom of
-          sand-colored light when the guest is ready to eat. Timings kept short on purpose: this
-          choreography used to add ~1.5s of dead time before the menu was even visible. */}
+    <motion.main className="welcome" initial="hidden" animate="show" exit={{ opacity: 0, transition: { duration: 0 } }}>
+      {/* Every transition/delay below is 0 on purpose — the guest sees the full welcome screen
+          and menu instantly instead of watching a choreographed reveal. Structure kept as-is
+          (variants, AnimatePresence) so it's a one-line change per element to bring timing back. */}
       <motion.div
         className="welcome-content glass-panel"
         initial={{ opacity: 0, scale: 0.86, y: 26, filter: 'blur(20px)' }}
-        animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.35, ease } }}
-        exit={{
-          scale: [1, 1.06, 0.12],
-          rotate: [0, 0, 45],
-          opacity: [1, 1, 0],
-          boxShadow: ['0 24px 60px rgba(8, 2, 5, 0.35)', '0 0 140px rgba(230, 199, 147, 0.6)', '0 0 0px rgba(230, 199, 147, 0)'],
-          transition: { duration: 0.35, ease, times: [0, 0.4, 1] },
-        }}
+        animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0 } }}
+        exit={{ opacity: 0, transition: { duration: 0 } }}
       >
         <motion.div
           className="welcome-brand"
-          variants={{ hidden: { opacity: 0, y: 18, filter: 'blur(10px)' }, show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: reduced ? 0 : 0.35, ease } } }}
+          variants={{ hidden: { opacity: 0, y: 18, filter: 'blur(10px)' }, show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0 } } }}
         >
           {restaurant.logoUrl ? (
             <img className="brand-logo-mark" src={restaurant.logoUrl} alt={restaurant.name[language]} />
@@ -226,21 +199,21 @@ function Welcome({
             </>
           )}
         </motion.div>
-        <motion.p className="welcome-line" variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.05, duration: 0.25 } } }}>
+        <motion.p className="welcome-line" variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0 } } }}>
           {welcomeLine}
         </motion.p>
-        <motion.h1 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { delay: 0.1, duration: 0.25, ease } } }}>{text.subtitle}</motion.h1>
-        <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.15, duration: 0.2 } } }}>
+        <motion.h1 variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0 } } }}>{text.subtitle}</motion.h1>
+        <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0 } } }}>
           <DiamondRow />
         </motion.div>
         <div className="language-row">
-          {(['ar', 'ckb', 'en'] as Language[]).map((option, index) => (
+          {(['ar', 'ckb', 'en'] as Language[]).map((option) => (
             <motion.button
               key={option}
               onClick={() => setLanguage(option)}
               className={language === option ? 'selected' : ''}
               style={{ skewX: 14 }}
-              variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { delay: 0.18 + index * 0.03, duration: 0.2, ease } } }}
+              variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0 } } }}
             >
               <span>{option === 'ar' ? 'العربية' : option === 'ckb' ? 'کوردی' : 'English'}</span>
             </motion.button>
@@ -250,7 +223,7 @@ function Welcome({
           className="enter-button"
           onClick={onStart}
           whileTap={{ scale: 0.98 }}
-          variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { delay: 0.24, duration: 0.2, ease } } }}
+          variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0 } } }}
         >
           {text.explore}
         </motion.button>
@@ -289,10 +262,10 @@ function MenuStage({
   return (
     <motion.main
       className="menu-shell"
-      initial={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.25, ease } }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0 } }}
     >
-      <motion.header layout className="menu-header glass-panel" initial={{ y: -24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.25, delay: 0.05, ease }}>
+      <motion.header layout className="menu-header glass-panel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0 }}>
         <div className="brand-mark">
           <span className="brand-word">RESTAURANT</span>
           {restaurant.logoUrl ? <img className="brand-logo" src={restaurant.logoUrl} alt={restaurant.name[language]} /> : <span className="brand-script">{restaurant.name[language]}</span>}
@@ -331,13 +304,13 @@ function MenuStage({
           layout
           className="menu-grid"
           key={`${language}-${activeCategory}`}
-          initial={{ opacity: 0, filter: 'blur(6px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, filter: 'blur(6px)' }}
-          transition={{ duration: 0.2, ease }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0 }}
         >
-          {visibleItems.map((item, index) => (
-            <MenuCard key={item.id} item={item} language={language} index={index} onSelect={() => setSelected(item)} />
+          {visibleItems.map((item) => (
+            <MenuCard key={item.id} item={item} language={language} onSelect={() => setSelected(item)} />
           ))}
         </motion.section>
       </AnimatePresence>
@@ -353,26 +326,9 @@ function MenuStage({
   )
 }
 
-function MenuCard({ item, language, index, onSelect }: { item: MenuItem; language: Language; index: number; onSelect: () => void }) {
-  // Scroll-reveal lives on this wrapper, separate from the button below, so the scroll-driven
-  // style and the button's own hover/tap transforms don't fight over the same element.
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const reduced = useReducedMotion()
-  const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ['start 96%', 'start 55%'] })
-  const y = useTransform(scrollYProgress, [0, 1], [36, 0])
-  const opacity = useTransform(scrollYProgress, [0, 1], [0, 1])
-  const blurPx = useTransform(scrollYProgress, [0, 1], [10, 0])
-  const filter = useTransform(blurPx, (value) => `blur(${value}px)`)
-
+function MenuCard({ item, language, onSelect }: { item: MenuItem; language: Language; onSelect: () => void }) {
   return (
-    <motion.div
-      ref={wrapperRef}
-      style={reduced ? undefined : { y, opacity, filter }}
-      initial={reduced ? { opacity: 0 } : undefined}
-      whileInView={reduced ? { opacity: 1 } : undefined}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ delay: index * 0.03 }}
-    >
+    <div>
       <motion.button className="menu-card glass-panel" onClick={onSelect} whileHover={{ y: -4 }} whileTap={{ scale: 0.98 }}>
         <div className="image-frame">
           <Image src={item.image} alt={item.name[language]} fill sizes="(max-width: 800px) 45vw, 30vw" />
@@ -386,6 +342,6 @@ function MenuCard({ item, language, index, onSelect }: { item: MenuItem; languag
           <p>{item.description[language]}</p>
         </div>
       </motion.button>
-    </motion.div>
+    </div>
   )
 }
