@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import Lenis from 'lenis'
+import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { copy, type CopyStrings } from '@/lib/menu-data'
 import { getRestaurantMenu } from '@/lib/queries'
@@ -150,7 +151,7 @@ export function MenuExperience({ restaurant, categories, items }: { restaurant: 
               animate={{ y: 0, transition: { duration: 0.55, ease: sheetEase } }}
               exit={{ y: '100%', transition: { duration: 0.4, ease: sheetEase } }}
             >
-              <img src={selected.image} alt={selected.name[language]} />
+              <Image src={selected.image} alt={selected.name[language]} width={800} height={800} sizes="(max-width: 800px) 100vw, 480px" />
               <motion.div
                 className="detail-content"
                 initial="hidden"
@@ -372,7 +373,7 @@ function MenuCard({ item, language, index, onSelect }: { item: MenuItem; languag
     >
       <motion.button className="menu-card glass-panel" onClick={onSelect} whileHover={{ y: -4 }} whileTap={{ scale: 0.98 }}>
         <div className="image-frame">
-          <img src={item.image} alt={item.name[language]} loading="lazy" decoding="async" />
+          <Image src={item.image} alt={item.name[language]} fill sizes="(max-width: 800px) 45vw, 30vw" />
         </div>
         <div className="card-copy">
           {item.tag && <span className="card-tag">{item.tag}</span>}
