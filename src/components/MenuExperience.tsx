@@ -109,7 +109,11 @@ export function MenuExperience({ restaurant, categories, items }: { restaurant: 
   return (
     <div className="cinema">
       <div className="cinema-bg" aria-hidden="true">
-        {restaurant.videoUrl ? (
+        {/* The welcome video is decorative for that one first screen only — left mounted behind
+            the menu too, it would keep decoding non-stop while the guest scrolls a card grid full
+            of its own animations, which is exactly the kind of thing that makes scrolling stutter.
+            Unmounting it (not just hiding it) when the guest starts stops that decode entirely. */}
+        {restaurant.videoUrl && !started ? (
           <video autoPlay={!reduced} muted loop playsInline src={restaurant.videoUrl} />
         ) : (
           <div className="diamond-field" />
